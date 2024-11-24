@@ -30,6 +30,20 @@ class BookViewModel: ObservableObject {
          // Lanjutkan dengan logika tambah buku
          print("Book added successfully!")
      }
+    
+    func addCategoryToBook(bookId: Int64, categoryId: Int64) {
+        do {
+            try DatabaseManager.shared.addBookToCategory(bookId: bookId, categoryId: categoryId)
+        } catch {
+            print("Failed to add category to book: \(error)")
+        }
+    }
+
+    func fetchCategoriesForBook(bookId: Int64) -> [BookCategory] {
+        return DatabaseManager.shared.fetchCategoriesForBook(bookId: bookId)
+    }
+
+    
 }
 
 

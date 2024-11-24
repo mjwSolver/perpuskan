@@ -23,7 +23,7 @@ class BookCategoryViewModel: ObservableObject {
         }
     }
 
-    func updateCategory(id: Int, name: String) {
+    func updateCategory(id: Int64, name: String) {
         do {
             try DatabaseManager.shared.updateCategory(id: id, name: name)
             fetchCategories()

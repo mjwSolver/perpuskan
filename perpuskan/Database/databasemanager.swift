@@ -6,7 +6,7 @@
 //
 
 import SQLite
-import Foundation
+//import Foundation
 
 class DatabaseManager {
     static let shared = DatabaseManager()
@@ -17,22 +17,28 @@ class DatabaseManager {
     private let membersTable = Table("Members")
     private let categoriesTable = Table("Categories")
     
+    // Pivot
+    private let bookCategoriesTable = Table("BookCategories")
+    private let bookIdColumn = Expression<Int64>("book_id")
+    private let categoryIdColumn = Expression<Int64>("category_id")
+
     // Columns for Books
-    private let bookId = Expression<Int>(value: "id")
-    private let title = Expression<String>(value: "title")
-    private let author = Expression<String>(value: "author")
-    private let year = Expression<Int>(value: "year")
-    private let memberId = Expression<Int?>(value: "member_id") // Nullable for unloaned books
+    private let bookId = Expression<Int64>("id")
+    private let title = Expression<String>("title")
+    private let author = Expression<String>("author")
+    private let year = Expression<Int>("year")
+    private let memberId = Expression<Int64?>("member_id") // Nullable for unloaned books
 
     // Columns for Members
-    private let memberIdColumn = Expression<Int>(value: "id")
-    private let memberName = Expression<String>(value: "name")
-    private let memberEmail = Expression<String>(value: "email")
-    private let memberPhone = Expression<String>(value: "phone")
+    private let memberIdColumn = Expression<Int64>("id")
+    private let memberName = Expression<String>("name")
+    private let memberEmail = Expression<String>("email")
+    private let memberPhone = Expression<String>("phone")
 
     // Columns for Categories
-    private var categoryId = Expression<Int>(value: "id")
-    private var categoryName = Expression<String>(value: "name")
+    private let categoryId = Expression<Int64>("id")
+    private let categoryName = Expression<String>("name")
+
     
     init() {
         let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("library.sqlite3").path
@@ -62,18 +68,81 @@ class DatabaseManager {
                 t.column(title)
                 t.column(author)
                 t.column(year)
-                t.column(memberId)
+                t.column(memberId) // Correct type: Int64?
             })
-            
+
+            // Create Categories Table
             try db?.run(categoriesTable.create(ifNotExists: true) { t in
                 t.column(categoryId, primaryKey: .autoincrement)
                 t.column(categoryName)
+            })
+            
+            // Tabel BookCategories (Pivot)
+            try db?.run(bookCategoriesTable.create(ifNotExists: true) { t in
+                t.column(bookIdColumn)
+                t.column(categoryIdColumn)
+                t.foreignKey(bookIdColumn, references: booksTable, bookId, delete: .cascade)
+                t.foreignKey(categoryIdColumn, references: categoriesTable, categoryId, delete: .cascade)
+                t.primaryKey(bookIdColumn, categoryIdColumn) // Composite primary key
             })
             
         } catch {
             print("Failed to create tables: \(error)")
         }
     }
+
+    // CRUD for Relationship Between Book and Category
+    func addBookToCategory(bookId: Int64, categoryId: Int64) throws {
+        do {
+            try db?.run(bookCategoriesTable.insert(bookIdColumn <- bookId, categoryIdColumn <- categoryId))
+        } catch {
+            throw error
+        }
+    }
+    
+    func removeBookFromCategory(bookId: Int64, categoryId: Int64) throws {
+        let relation = bookCategoriesTable.filter(bookIdColumn == bookId && categoryIdColumn == categoryId)
+        do {
+            try db?.run(relation.delete())
+        } catch {
+            throw error
+        }
+    }
+    
+    func fetchCategoriesForBook(bookId: Int64) -> [BookCategory] {
+        var categories = [BookCategory]()
+        do {
+            if let rows = try db?.prepare(bookCategoriesTable.filter(bookIdColumn == bookId).join(categoriesTable, on: categoryIdColumn == categoryId)) {
+                for row in rows {
+                    categories.append(BookCategory(id: row[categoryId], name: row[categoryName]))
+                }
+            }
+        } catch {
+            print("Failed to fetch categories for book: \(error)")
+        }
+        return categories
+    }
+
+    func fetchBooksForCategory(categoryId: Int64) -> [Book] {
+        var books = [Book]()
+        do {
+            if let rows = try db?.prepare(bookCategoriesTable.filter(categoryIdColumn == categoryId).join(booksTable, on: bookIdColumn == bookId)) {
+                for row in rows {
+                    books.append(Book(
+                        id: row[bookId],
+                        title: row[title],
+                        author: row[author],
+                        year: row[year],
+                        memberId: row[memberId]
+                    ))
+                }
+            }
+        } catch {
+            print("Failed to fetch books for category: \(error)")
+        }
+        return books
+    }
+
 
     // CRUD Operations for Members
     func addMember(name: String, email: String, phone: String) throws {
@@ -107,7 +176,7 @@ class DatabaseManager {
         return members
     }
 
-    func updateMember(id: Int, name: String, email: String, phone: String) throws {
+    func updateMember(id: Int64, name: String, email: String, phone: String) throws {
         let memberToUpdate = membersTable.filter(memberIdColumn == id)
         do {
             try db?.run(memberToUpdate.update(
@@ -120,7 +189,7 @@ class DatabaseManager {
         }
     }
 
-    func deleteMember(id: Int) throws {
+    func deleteMember(id: Int64) throws {
         let memberToDelete = membersTable.filter(memberIdColumn == id)
         do {
             try db?.run(memberToDelete.delete())
@@ -130,7 +199,7 @@ class DatabaseManager {
     }
 
     // Fetch Books Loaned by a Member
-    func fetchBooksLoanedByMember(memberId: Int) -> [Book] {
+    func fetchBooksLoanedByMember(memberId: Int64) -> [Book] {
         var books = [Book]()
         do {
             if let rows = try db?.prepare(booksTable.filter(self.memberId == memberId)) {
@@ -174,7 +243,7 @@ class DatabaseManager {
         return categories
     }
 
-    func updateCategory(id: Int, name: String) throws {
+    func updateCategory(id: Int64, name: String) throws {
         let categoryToUpdate = categoriesTable.filter(categoryId == id)
         do {
             try db?.run(categoryToUpdate.update(categoryName <- name))
@@ -183,7 +252,7 @@ class DatabaseManager {
         }
     }
 
-    func deleteCategory(id: Int) throws {
+    func deleteCategory(id: Int64) throws {
         let categoryToDelete = categoriesTable.filter(categoryId == id)
         do {
             try db?.run(categoryToDelete.delete())
@@ -191,7 +260,4 @@ class DatabaseManager {
             throw error
         }
     }
-}
-    
-    
 }

@@ -6,7 +6,7 @@
 //
 
 struct Member: Identifiable {
-    let id: Int
+    let id: Int64
     let name: String
     let email: String
     let phone: String
