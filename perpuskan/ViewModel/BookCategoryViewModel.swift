@@ -32,7 +32,7 @@ class BookCategoryViewModel: ObservableObject {
         }
     }
 
-    func deleteCategory(id: Int) {
+    func deleteCategory(id: Int64) {
         do {
             try DatabaseManager.shared.deleteCategory(id: id)
             fetchCategories()

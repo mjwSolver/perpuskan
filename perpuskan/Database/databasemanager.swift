@@ -219,7 +219,6 @@ class DatabaseManager {
         return books
     }
     
-    
     // CRUD Operations for Categories
     func addCategory(name: String) throws {
         do {

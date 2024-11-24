@@ -17,8 +17,8 @@ class BookViewModel: ObservableObject {
         return true
     }
     
-    func fetchBooks() {
-        // Implementasikan query untuk mengambil data buku
+    func fetchBooks(forCategory categoryId: Int64) {
+        books = DatabaseManager.shared.fetchBooksForCategory(categoryId: categoryId)
     }
 
     func addBook(title: String?, author: String?, year: Int?) {
@@ -42,6 +42,8 @@ class BookViewModel: ObservableObject {
     func fetchCategoriesForBook(bookId: Int64) -> [BookCategory] {
         return DatabaseManager.shared.fetchCategoriesForBook(bookId: bookId)
     }
+    
+    
 
     
 }

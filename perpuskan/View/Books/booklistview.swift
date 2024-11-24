@@ -8,28 +8,25 @@
 import SwiftUI
 
 struct BookListView: View {
+    var category: BookCategory? // Opsional jika filter berdasarkan kategori
     @StateObject private var viewModel = BookViewModel()
 
     var body: some View {
-        NavigationView {
-            List(viewModel.books) { book in
-                VStack(alignment: .leading) {
-                    Text(book.title).font(.headline)
-                    Text(book.author).font(.subheadline)
-                    Text("Year: \(book.year)").font(.caption)
-                }
-            }
-            .navigationTitle("Books")
-            .toolbar {
-                Button(action: {
-                    viewModel.addBook(title: "New Book", author: "Author", year: 2024)
-                }) {
-                    Text("Add Book")
-                }
-            }
-            .onAppear {
-                viewModel.fetchBooks()
+        List(viewModel.books) { book in
+            VStack(alignment: .leading) {
+                Text(book.title).font(.headline)
+                Text("Author: \(book.author)")
+                Text("Year: \(book.year)")
             }
         }
+        .onAppear {
+            if let category = category {
+                viewModel.fetchBooks(forCategory: category.id)
+            } else {
+                viewModel.fetchAllBooks()
+            }
+        }
+        .navigationTitle(category?.name ?? "All Books")
     }
 }
+
