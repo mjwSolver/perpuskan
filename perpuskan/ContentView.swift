@@ -9,9 +9,29 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        BookListView()
+        NavigationStack {
+            List {
+                NavigationLink(destination: BookListView()) {
+                    Text("View Books")
+                }
+
+                NavigationLink(destination: MemberListView()) {
+                    Text("View Members")
+                }
+
+                NavigationLink(destination: AddMemberView()) {
+                    Text("Add Member")
+                }
+
+                NavigationLink(destination: AddBookView()) {
+                    Text("Add Book")
+                }
+            }
+            .navigationTitle("Library App")
+        }
     }
 }
+
 
 #Preview {
     ContentView()
