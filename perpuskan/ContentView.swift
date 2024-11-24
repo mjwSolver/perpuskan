@@ -11,6 +11,7 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             List {
+                
                 NavigationLink(destination: BookListView()) {
                     Text("View Books")
                 }
@@ -19,13 +20,10 @@ struct ContentView: View {
                     Text("View Members")
                 }
 
-                NavigationLink(destination: AddMemberView()) {
-                    Text("Add Member")
+                NavigationLink(destination: BookCategoryListView()) {
+                    Text("Manage Book Categories")
                 }
-
-                NavigationLink(destination: AddBookView()) {
-                    Text("Add Book")
-                }
+                
             }
             .navigationTitle("Library App")
         }

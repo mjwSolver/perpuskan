@@ -15,7 +15,8 @@ class DatabaseManager {
     // Tables
     private let booksTable = Table("Books")
     private let membersTable = Table("Members")
-
+    private let categoriesTable = Table("Categories")
+    
     // Columns for Books
     private let bookId = Expression<Int>(value: "id")
     private let title = Expression<String>(value: "title")
@@ -29,6 +30,10 @@ class DatabaseManager {
     private let memberEmail = Expression<String>(value: "email")
     private let memberPhone = Expression<String>(value: "phone")
 
+    // Columns for Categories
+    private var categoryId = Expression<Int>(value: "id")
+    private var categoryName = Expression<String>(value: "name")
+    
     init() {
         let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("library.sqlite3").path
         do {
@@ -59,6 +64,12 @@ class DatabaseManager {
                 t.column(year)
                 t.column(memberId)
             })
+            
+            try db?.run(categoriesTable.create(ifNotExists: true) { t in
+                t.column(categoryId, primaryKey: .autoincrement)
+                t.column(categoryName)
+            })
+            
         } catch {
             print("Failed to create tables: \(error)")
         }
@@ -138,4 +149,49 @@ class DatabaseManager {
         }
         return books
     }
+    
+    
+    // CRUD Operations for Categories
+    func addCategory(name: String) throws {
+        do {
+            try db?.run(categoriesTable.insert(categoryName <- name))
+        } catch {
+            throw error
+        }
+    }
+
+    func fetchCategories() -> [BookCategory] {
+        var categories = [BookCategory]()
+        do {
+            if let rows = try db?.prepare(categoriesTable) {
+                for row in rows {
+                    categories.append(BookCategory(id: row[categoryId], name: row[categoryName]))
+                }
+            }
+        } catch {
+            print("Failed to fetch categories: \(error)")
+        }
+        return categories
+    }
+
+    func updateCategory(id: Int, name: String) throws {
+        let categoryToUpdate = categoriesTable.filter(categoryId == id)
+        do {
+            try db?.run(categoryToUpdate.update(categoryName <- name))
+        } catch {
+            throw error
+        }
+    }
+
+    func deleteCategory(id: Int) throws {
+        let categoryToDelete = categoriesTable.filter(categoryId == id)
+        do {
+            try db?.run(categoryToDelete.delete())
+        } catch {
+            throw error
+        }
+    }
+}
+    
+    
 }
