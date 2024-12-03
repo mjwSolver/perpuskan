@@ -7,45 +7,65 @@
 
 import SwiftUI
 
+import SwiftUI
+
 struct AddBookView: View {
     
+    @ObservedObject var viewModel: BookViewModel // Shared ViewModel
+    @Environment(\.dismiss) private var dismiss
+
     @State private var title: String = ""
     @State private var author: String = ""
     @State private var year: String = ""
-    @State private var selectedCategoryIds: Set<Int64> = [] // Gunakan Set untuk menghindari duplikasi
-    
-    @StateObject private var categoryViewModel = BookCategoryViewModel() // ViewModel untuk kategori
+    @State private var selectedCategoryIds: Set<Int64> = [] // To avoid duplicates
 
     var body: some View {
-        Form {
-            Section(header: Text("Book Details")) {
-                TextField("Title", text: $title)
-                TextField("Author", text: $author)
-                TextField("Year", text: $year)
-            }
+        NavigationView {
+            Form {
+                // Book Details Section
+                Section(header: Text("Book Details")) {
+                    TextField("Title", text: $title)
+                        .autocorrectionDisabled()
+                    TextField("Author", text: $author)
+                        .autocorrectionDisabled()
+                    TextField("Year", text: $year)
+                        .keyboardType(.numberPad)
+                }
 
-            Section(header: Text("Select Categories")) {
-                ForEach(categoryViewModel.categories, id: \.id) { category in
-                    Toggle(category.name, isOn: Binding(
-                        get: { selectedCategoryIds.contains(category.id) },
-                        set: { isSelected in
-                            if isSelected {
-                                selectedCategoryIds.insert(category.id)
-                            } else {
-                                selectedCategoryIds.remove(category.id)
+                // Categories Selection Section
+                Section(header: Text("Select Categories")) {
+                    ForEach(viewModel.categories, id: \.id) { category in
+                        Toggle(category.name, isOn: Binding(
+                            get: { selectedCategoryIds.contains(category.id) },
+                            set: { isSelected in
+                                if isSelected {
+                                    selectedCategoryIds.insert(category.id)
+                                } else {
+                                    selectedCategoryIds.remove(category.id)
+                                }
                             }
-                        }
-                    ))
+                        ))
+                    }
                 }
             }
-
-            Button("Save") {
-                saveBook()
+            .navigationTitle("Add Book")
+            .toolbar {
+                // Save Button
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
+                        saveBook()
+                    }
+                }
+                // Cancel Button
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
             }
-        }
-        .navigationTitle("Add Book")
-        .onAppear {
-            categoryViewModel.fetchCategories() // Fetch daftar kategori saat tampilan muncul
+            .onAppear {
+                viewModel.fetchCategories() // Fetch categories when the view appears
+            }
         }
     }
 
@@ -54,13 +74,18 @@ struct AddBookView: View {
             print("All fields are required.")
             return
         }
-        // Simpan buku dengan kategori yang dipilih
-        print("Saving Book: Title=\(title), Author=\(author), Year=\(yearInt), Categories=\(selectedCategoryIds)")
+
+        // Add the book using the ViewModel
+        viewModel.addBook(title: title, author: author, year: yearInt, categoryIds: Array(selectedCategoryIds))
+        dismiss()
     }
 }
 
-struct AddBookView_Previews: PreviewProvider {
-    static var previews: some View {
-        AddBookView()
-    }
-}
+
+//struct AddBookView_Previews: PreviewProvider {
+//    static var previews: some View {
+//       AddBookView()
+//    }
+//}
+
+

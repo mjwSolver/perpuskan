@@ -176,6 +176,90 @@ class DatabaseManager {
         return books
     }
 
+    // CRUD For Books
+    func addBook(title: String, author: String, year: Int, memberId: Int64? = nil, categoryIds: [Int64]) throws -> Int64 {
+        do {
+            let insert = booksTable.insert(
+                self.title <- title,
+                self.author <- author,
+                self.year <- year
+                self.memberId <- memberId // TODO: Expression Int versus Int64
+            )
+            
+            guard let bookId = try db?.run(insert) else {
+                throw NSError(domain: "DatabaseError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to insert book."])
+            }
+            
+            print("Book added successfully with ID \(bookId)")
+            
+            // Insert into BookCategories table for each category ID
+            for categoryId in categoryIds {
+                let insertCategory = bookCategoriesTable.insert(
+                    bookIdColumn <- bookId, // TODO: Expression Int versus Int64
+                    categoryIdColumn <- Int(categoryId) // TODO: Expression Int versus Int64
+                )
+                try db?.run(insertCategory)
+                print("Added category \(categoryId) for book \(bookId)")
+            }
+            
+            return bookId
+            
+        } catch {
+            print("Failed to add book: \(error)")
+            throw error
+        }
+    }
+
+    func editBook(bookId: Int64, title: String?, author: String?, year: Int?, memberId: Int64? = nil) throws {
+        do {
+            let book = booksTable.filter(self.bookId == Int(bookId))
+            var updates = [Setter]()
+
+            if let title = title {
+                updates.append(self.title <- title)
+            }
+            if let author = author {
+                updates.append(self.author <- author)
+            }
+            if let year = year {
+                updates.append(self.year <- year)
+            }
+            if let memberId = memberId {
+                updates.append(self.memberId <- Int(memberId))
+            }
+
+            guard !updates.isEmpty else {
+                print("No updates provided for book with ID \(bookId)")
+                return
+            }
+
+            try db?.run(book.update(updates))
+            print("Book with ID \(bookId) successfully updated.")
+        } catch {
+            print("Failed to update book with ID \(bookId): \(error)")
+            throw error
+        }
+    }
+
+    
+    func deleteBook(bookId: Int64) throws {
+        do {
+            // Delete all associated categories for the book
+            let bookCategories = bookCategoriesTable.filter(bookIdColumn == Int(bookId))
+            try db?.run(bookCategories.delete())
+            
+            // Delete the book from the Books table
+            let book = booksTable.filter(self.bookId == Int(bookId))
+            try db?.run(book.delete())
+            
+            print("Book with ID \(bookId) and its associations successfully deleted.")
+        } catch {
+            print("Failed to delete book with ID \(bookId): \(error)")
+            throw error
+        }
+    }
+
+    
     
     // CRUD Operations for Members
     func addMember(name: String, email: String, phone: String) throws {
@@ -231,26 +315,25 @@ class DatabaseManager {
         }
     }
 
-//     Fetch Books Loaned by a Member
-    func fetchBooksLoanedByMember(memberId: Int) -> [Book] {
+    // TODO: memberId is treated as Int, it should be Int64
+    func fetchBooksLoanedByMember(memberIdHere: Int64) -> [Book] {
         var books = [Book]()
-//        do {
-//            
-//            if let rows = try db?.prepare(booksTable.filter(self.memberId == memberId)) {
-//                for row in rows {
-//                    books.append(Book(
-//                        id: Int64(row[bookId]),
-//                        title: row[title],
-//                        author: row[author],
-//                        year: row[year],
-//                        memberId: Int64(row[memberId] ?? 0)  // Nullable for books that are not loaned
-//                    ))
-//                }
-//            }
-//            
-//        } catch {
-//            print("Failed to fetch books loaned by member: \(error)")
-//        }
+        do {
+            // Query untuk mendapatkan buku yang dipinjam oleh anggota tertentu
+            if let rows = try db?.prepare(booksTable.filter(self.memberId == memberId)) {
+                for row in rows {
+                    books.append(Book(
+                        id: Int64(row[bookId]),
+                        title: row[title],
+                        author: row[author],
+                        year: row[year],
+                        memberId: Int64(row[memberId])
+                    ))
+                }
+            }
+        } catch {
+            print("Failed to fetch books loaned by member: \(error)")
+        }
         return books
     }
     
@@ -294,4 +377,16 @@ class DatabaseManager {
             throw error
         }
     }
+    
+    // Add Categories to Books
+    func addCategoryToBook(bookId: Int64, categoryId: Int64) {
+        do {
+            // Insert a new relationship into the bookCategoriesTable
+//            try db?.run(bookCategoriesTable.insert(bookIdColumn <- bookId, categoryIdColumn <- categoryId))
+            print("Category successfully added to book.")
+        } catch {
+            print("Failed to add category to book: \(error)")
+        }
+    }
+    
 }

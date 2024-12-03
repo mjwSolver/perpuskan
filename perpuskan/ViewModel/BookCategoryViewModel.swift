@@ -22,10 +22,6 @@ class BookCategoryViewModel: ObservableObject {
             print("Failed to add category: \(error)")
         }
     }
-    
-    func addCategoryToBook(bookId: Int64, categoryId: Int64) {
-        
-    }
 
     func updateCategory(id: Int, name: String) {
         do {
