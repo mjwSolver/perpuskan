@@ -21,7 +21,7 @@ struct BookListView: View {
         }
         .onAppear {
             if let category = category {
-                viewModel.fetchBooks(forCategory: category.id)
+                viewModel.fetchBooksByCategory(forCategory: category.id)
             } else {
                 viewModel.fetchAllBooks()
             }

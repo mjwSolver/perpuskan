@@ -22,8 +22,12 @@ class BookCategoryViewModel: ObservableObject {
             print("Failed to add category: \(error)")
         }
     }
+    
+    func addCategoryToBook(bookId: Int64, categoryId: Int64) {
+        
+    }
 
-    func updateCategory(id: Int64, name: String) {
+    func updateCategory(id: Int, name: String) {
         do {
             try DatabaseManager.shared.updateCategory(id: id, name: name)
             fetchCategories()
@@ -32,7 +36,7 @@ class BookCategoryViewModel: ObservableObject {
         }
     }
 
-    func deleteCategory(id: Int64) {
+    func deleteCategory(id: Int) {
         do {
             try DatabaseManager.shared.deleteCategory(id: id)
             fetchCategories()

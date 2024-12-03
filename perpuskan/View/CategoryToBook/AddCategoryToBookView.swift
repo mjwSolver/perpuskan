@@ -32,4 +32,7 @@ struct AddCategoryToBookView: View {
     }
 }
 
+#Preview {
+    AddCategoryToBookView(book: Book(id: 1, title: "something", author: "bla", year: 2022))
+}
 

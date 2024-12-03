@@ -24,7 +24,7 @@ class MemberViewModel: ObservableObject {
         }
     }
 
-    func updateMember(id: Int, name: String, email: String, phone: String) {
+    func updateMember(id: Int64, name: String, email: String, phone: String) {
         do {
             try DatabaseManager.shared.updateMember(id: id, name: name, email: email, phone: phone)
             fetchMembers()

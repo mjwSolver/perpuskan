@@ -22,7 +22,7 @@ struct EditCategoryView: View {
             TextField("Category Name", text: $name)
 
             Button("Update") {
-                viewModel.updateCategory(id: category.id, name: name)
+                viewModel.updateCategory(id: Int(category.id), name: name)
             }
             .disabled(name.isEmpty)
         }

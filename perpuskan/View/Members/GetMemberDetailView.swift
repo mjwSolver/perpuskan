@@ -21,7 +21,7 @@ struct MemberDetailView: View {
         }
         .navigationTitle(member.name)
         .onAppear {
-            viewModel.fetchBooksLoanedByMember(memberId: member.id)
+            viewModel.fetchBooksLoanedByMember(memberId: Int(member.id))
         }
     }
 }

@@ -12,7 +12,7 @@ struct Book: Identifiable {
     let title: String
     let author: String
     let year: Int
-    let memberId: Int64?
+    var memberId: Int64?
     var categories: [BookCategory] = [] // Tambahkan properti ini
 }
 

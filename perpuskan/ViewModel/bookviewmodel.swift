@@ -17,8 +17,12 @@ class BookViewModel: ObservableObject {
         return true
     }
     
-    func fetchBooks(forCategory categoryId: Int64) {
+    func fetchBooksByCategory(forCategory categoryId: Int64) {
         books = DatabaseManager.shared.fetchBooksForCategory(categoryId: categoryId)
+    }
+    
+    func fetchAllBooks() {
+        books = DatabaseManager.shared.fetchAllBooks()
     }
 
     func addBook(title: String?, author: String?, year: Int?) {
@@ -42,10 +46,7 @@ class BookViewModel: ObservableObject {
     func fetchCategoriesForBook(bookId: Int64) -> [BookCategory] {
         return DatabaseManager.shared.fetchCategoriesForBook(bookId: bookId)
     }
-    
-    
-
-    
+        
 }
 
 

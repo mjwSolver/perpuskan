@@ -21,7 +21,7 @@ struct BookCategoryListView: View {
                 .onDelete { indexSet in
                     indexSet.forEach { index in
                         let category = viewModel.categories[index]
-                        viewModel.deleteCategory(id: category.id)
+                        viewModel.deleteCategory(id: Int(category.id))
                     }
                 }
             }
