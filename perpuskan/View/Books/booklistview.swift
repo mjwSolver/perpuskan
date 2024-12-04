@@ -93,7 +93,7 @@ struct BookListView: View {
 
     private func loadBooks() {
         if let category = category {
-            viewModel.fetchBooksByCategory(forCategory: category.id)
+            viewModel.fetchBooksByCategory(categoryId: category.id)
         } else {
             viewModel.fetchAllBooks()
         }

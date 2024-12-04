@@ -182,7 +182,7 @@ class DatabaseManager {
             let insert = booksTable.insert(
                 self.title <- title,
                 self.author <- author,
-                self.year <- year
+                self.year <- year,
                 self.memberId <- memberId // TODO: Expression Int versus Int64
             )
             

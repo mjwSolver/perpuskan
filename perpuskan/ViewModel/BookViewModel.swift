@@ -64,13 +64,14 @@ class BookViewModel: ObservableObject {
         do {
             // Call the DatabaseManager's delete function
             try DatabaseManager.shared.deleteBook(bookId: bookId)
-
+            
             // Update the local list of books
             books.removeAll { $0.id == bookId }
         } catch {
             print("Failed to delete book: \(error.localizedDescription)")
         }
-
+    }
+        
     // Just Category
     func fetchCategories() {
         categories = DatabaseManager.shared.fetchCategories()
@@ -78,7 +79,7 @@ class BookViewModel: ObservableObject {
     
     // Book and Category
     
-    func fetchBooksByCategory(forCategory categoryId: Int64) {
+    func fetchBooksByCategory(categoryId: Int64) {
         books = DatabaseManager.shared.fetchBooksForCategory(categoryId: categoryId)
     }
     
@@ -89,14 +90,10 @@ class BookViewModel: ObservableObject {
             print("Failed to add category to book: \(error)")
         }
     }
-
+    
     func fetchCategoriesForBook(bookId: Int64) -> [BookCategory] {
         return DatabaseManager.shared.fetchCategoriesForBook(bookId: bookId)
     }
-    
-    
-    
-    
         
 }
 
