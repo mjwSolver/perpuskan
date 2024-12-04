@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct AddCategoryView: View {
+    
+    @Environment(\.dismiss) private var dismiss
+    
     @StateObject private var viewModel = BookCategoryViewModel()
     @State private var name = ""
 
@@ -18,6 +21,7 @@ struct AddCategoryView: View {
             Button("Save") {
                 viewModel.addCategory(name: name)
                 name = "" // Reset field
+                dismiss()
             }
             .disabled(name.isEmpty)
         }

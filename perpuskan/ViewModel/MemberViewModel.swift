@@ -43,6 +43,6 @@ class MemberViewModel: ObservableObject {
     }
 
     func fetchBooksLoanedByMember(memberId: Int) {
-        booksLoanedByMember = DatabaseManager.shared.fetchBooksLoanedByMember(memberId: memberId)
+        booksLoanedByMember = DatabaseManager.shared.fetchBooksLoanedByMember(memberIdHere: Int64(memberId))
     }
 }

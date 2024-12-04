@@ -40,4 +40,13 @@ class BookCategoryViewModel: ObservableObject {
             print("Failed to delete category: \(error)")
         }
     }
+    
+    func addCategoryToBook(bookId: Int64, categoryId: Int64) {
+        do {
+            try DatabaseManager.shared.addCategoryToBook(bookId: Int(bookId), categoryId: Int(categoryId))
+        } catch {
+            print("Failed to add category to book of \(bookId) with error: \(error)")
+        }
+    }
+    
 }

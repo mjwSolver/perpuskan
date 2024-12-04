@@ -6,13 +6,19 @@
 //
 
 import SQLite
+import SQLite3
 typealias SQLExpression = SQLite.Expression
 import Foundation
 
 class DatabaseManager {
     static let shared = DatabaseManager()
-    private let db: Connection?
+    private var db: Connection?
+    
+    var dbTry: OpaquePointer?
 
+    
+    let dataPath: String = "MyDB"
+    
     // Tables
     private let booksTable = Table("Books")
     private let membersTable = Table("Members")
@@ -22,48 +28,45 @@ class DatabaseManager {
     private let bookCategoriesTable = Table("BookCategories")
     private let bookIdColumn = Expression<Int>(value: 0) // "book_id"
     private let categoryIdColumn = Expression<Int>(value: 0) // "category_id"
-
+    
     // Columns for Books
     private var bookId = Expression<Int>(value: 0)
     private let title = Expression<String>(value: "title")
     private let author = Expression<String>(value: "author")
     private let year = Expression<Int>(value: 0) // "year"
     private let memberId = Expression<Int>(value: 0) // Nullable for unloaned books
-
+    
     // Columns for Members
     private let memberIdColumn = Expression<Int>(value: 0) // "id"
     private let memberName = Expression<String>(value: "name")
     private let memberEmail = Expression<String>(value: "email")
     private let memberPhone = Expression<String>(value: "phone")
-
+    
     // Columns for Categories
     private let categoryId = Expression<Int>(value: 0) // "id"
     private let categoryName = Expression<String>(value: "name")
-
+    
     
     init() {
-        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("library.sqlite3").path
-        do {
-            db = try Connection(path)
-            createTables()
-        } catch {
-            db = nil
-            print("Failed to initialize database connection: \(error)")
-        }
+//        createDb()
+        dbTry = openDatabase()
+        createTables()
     }
     
-//    init() {
-//        let path = NSHomeDirectory() + "/Documents/library.sqlite3"
-//        do {
-//            db = try Connection(path)
-//            createTables()
-//        } catch {
-//            db = nil
-//            print("Failed to initialize database connection: \(error)")
-//        }
-//    }
-
-
+    func openDatabase() -> OpaquePointer? {
+        let filePath = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false).appendingPathComponent(dataPath)
+        
+        var db: OpaquePointer? = nil
+        if sqlite3_open(filePath.path, &db) != SQLITE_OK{
+            debugPrint("Cannot open DB.")
+            return nil
+        }
+        else{
+            print("DB successfully created.")
+            return db
+        }
+    }
+        
     private func createTables() {
         do {
             // Create Members Table
@@ -73,7 +76,7 @@ class DatabaseManager {
                 t.column(memberEmail, unique: true)
                 t.column(memberPhone)
             })
-
+            
             // Create Books Table (Updated to include member_id)
             try db?.run(booksTable.create(ifNotExists: true) { t in
                 t.column(bookId, primaryKey: .autoincrement)
@@ -82,7 +85,7 @@ class DatabaseManager {
                 t.column(year)
                 t.column(memberId) // Correct type: Int64?
             })
-
+            
             // Create Categories Table
             try db?.run(categoriesTable.create(ifNotExists: true) { t in
                 t.column(categoryId, primaryKey: .autoincrement)
@@ -102,7 +105,7 @@ class DatabaseManager {
             print("Failed to create tables: \(error)")
         }
     }
-
+    
     // CRUD for Relationship Between Book and Category
     func addBookToCategory(bookId: Int64, categoryId: Int64) throws {
         do {
@@ -134,7 +137,7 @@ class DatabaseManager {
         }
         return categories
     }
-
+    
     func fetchBooksForCategory(categoryId: Int64) -> [Book] {
         var books = [Book]()
         do {
@@ -154,8 +157,8 @@ class DatabaseManager {
         }
         return books
     }
-
-
+    
+    
     func fetchAllBooks() -> [Book] {
         var books = [Book]()
         do {
@@ -172,33 +175,37 @@ class DatabaseManager {
             }
         } catch {
             print("Failed to fetch books: \(error)")
+            
+//            /Users/marcelljw/Xcode Projects/perpuskan/perpuskan/perpuskan/Database/databasemanager.swift
         }
         return books
     }
-
+    
     // CRUD For Books
-    private func addBook(title: String, author: String, year: Int, memberId: Int? = nil, categoryIds: [Int]) throws {
+    func addBook(title: String, author: String, year: Int, memberId: Int? = nil, categoryIds: [Int]) throws {
         
         do {
             // Step 1: Insert the book into the database
+            
             let insert = booksTable.insert(
                 self.title <- title,
                 self.author <- author,
                 self.year <- year,
                 self.memberId <- memberId ?? -1 // Handle nil memberId
             )
-
+            
+            
             guard let bookId = try db?.run(insert) else {
                 throw NSError(domain: "DatabaseError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to insert book."])
             }
-
+            
             print("Book added successfully with ID \(bookId)")
-
+            
             // Step 2: Add categories to the book
             for categoryId in categoryIds {
                 try addCategoryToBook(bookId: Int(bookId), categoryId: categoryId)
             }
-
+            
         } catch {
             print("Failed to add book: \(error)")
             throw error
@@ -206,7 +213,7 @@ class DatabaseManager {
         
     }
     
-    private func addCategoryToBook(bookId: Int, categoryId: Int) throws {
+    func addCategoryToBook(bookId: Int, categoryId: Int) throws {
         do {
             let insertCategory = bookCategoriesTable.insert(
                 bookIdColumn <- bookId,
@@ -219,12 +226,12 @@ class DatabaseManager {
             throw error
         }
     }
-
+    
     func editBook(bookId: Int64, title: String?, author: String?, year: Int?, memberId: Int64? = nil) throws {
         do {
             let book = booksTable.filter(self.bookId == Int(bookId))
             var updates = [Setter]()
-
+            
             if let title = title {
                 updates.append(self.title <- title)
             }
@@ -237,12 +244,12 @@ class DatabaseManager {
             if let memberId = memberId {
                 updates.append(self.memberId <- Int(memberId))
             }
-
+            
             guard !updates.isEmpty else {
                 print("No updates provided for book with ID \(bookId)")
                 return
             }
-
+            
             try db?.run(book.update(updates))
             print("Book with ID \(bookId) successfully updated.")
         } catch {
@@ -250,7 +257,7 @@ class DatabaseManager {
             throw error
         }
     }
-
+    
     
     func deleteBook(bookId: Int64) throws {
         do {
@@ -268,7 +275,7 @@ class DatabaseManager {
             throw error
         }
     }
-
+    
     
     
     // CRUD Operations for Members
@@ -283,7 +290,7 @@ class DatabaseManager {
             throw error
         }
     }
-
+    
     func fetchMembers() -> [Member] {
         var members = [Member]()
         do {
@@ -302,7 +309,7 @@ class DatabaseManager {
         }
         return members
     }
-
+    
     func updateMember(id: Int64, name: String, email: String, phone: String) throws {
         let memberToUpdate = membersTable.filter(memberIdColumn == Int(id))
         do {
@@ -315,7 +322,7 @@ class DatabaseManager {
             throw error
         }
     }
-
+    
     func deleteMember(id: Int) throws {
         let memberToDelete = membersTable.filter(memberIdColumn == id)
         do {
@@ -324,7 +331,7 @@ class DatabaseManager {
             throw error
         }
     }
-
+    
     // TODO: memberId is treated as Int, it should be Int64
     func fetchBooksLoanedByMember(memberIdHere: Int64) -> [Book] {
         var books = [Book]()
@@ -355,7 +362,7 @@ class DatabaseManager {
             throw error
         }
     }
-
+    
     func fetchCategories() -> [BookCategory] {
         var categories = [BookCategory]()
         do {
@@ -369,7 +376,7 @@ class DatabaseManager {
         }
         return categories
     }
-
+    
     func updateCategory(id: Int, name: String) throws {
         let categoryToUpdate = categoriesTable.filter(categoryId == id)
         do {
@@ -378,24 +385,13 @@ class DatabaseManager {
             throw error
         }
     }
-
+    
     func deleteCategory(id: Int) throws {
         let categoryToDelete = categoriesTable.filter(categoryId == id)
         do {
             try db?.run(categoryToDelete.delete())
         } catch {
             throw error
-        }
-    }
-    
-    // Add Categories to Books
-    func addCategoryToBook(bookId: Int64, categoryId: Int64) {
-        do {
-            // Insert a new relationship into the bookCategoriesTable
-//            try db?.run(bookCategoriesTable.insert(bookIdColumn <- bookId, categoryIdColumn <- categoryId))
-            print("Category successfully added to book.")
-        } catch {
-            print("Failed to add category to book: \(error)")
         }
     }
     

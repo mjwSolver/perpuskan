@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct AddMemberView: View {
+    
+    @Environment(\.dismiss) private var dismiss
+    
     @StateObject private var viewModel = MemberViewModel()
     @State private var name = ""
     @State private var email = ""
@@ -39,6 +42,7 @@ struct AddMemberView: View {
 
             Button("Save") {
                 viewModel.addMember(name: name, email: email, phone: phone)
+                dismiss()
             }
         }
         .navigationTitle("Add Member")

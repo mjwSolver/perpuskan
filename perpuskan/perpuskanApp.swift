@@ -6,12 +6,29 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct perpuskanApp: App {
+    
+//    let persistenceController = PersistenceController.shared
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            
+            CRUDTestView()
+                .modelContainer(for: [Book.self, BookCategory.self, Member.self]) // Register all models
+            
+//            ContentView()
+//                .modelContainer(persistenceController.container)
+//                .onAppear {
+//                    Task {
+//                        await MainActor.run {
+//                            populateMockData(context: persistenceController.container.mainContext)
+//                        }
+//                    }
+//                }
+                
         }
     }
 }

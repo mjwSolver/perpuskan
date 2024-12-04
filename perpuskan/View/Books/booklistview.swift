@@ -101,3 +101,6 @@ struct BookListView: View {
 
 }
 
+#Preview {
+    BookListView()
+}
