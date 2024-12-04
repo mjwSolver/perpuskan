@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		839E4F822D00A3F0000168A8 /* SwiftData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 839E4F812D00A3EF000168A8 /* SwiftData.framework */; };
 		83BEB6652CF2C56300BC3E3C /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 83BEB6642CF2C56300BC3E3C /* SQLite */; };
 /* End PBXBuildFile section */
 
@@ -28,6 +29,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		839E4F812D00A3EF000168A8 /* SwiftData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftData.framework; path = System/Library/Frameworks/SwiftData.framework; sourceTree = SDKROOT; };
 		83FF7DDF2CF2BAA1000AD145 /* perpuskan.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = perpuskan.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		83FF7DF02CF2BAA4000AD145 /* perpuskanTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = perpuskanTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		83FF7DFA2CF2BAA4000AD145 /* perpuskanUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = perpuskanUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -56,6 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				839E4F822D00A3F0000168A8 /* SwiftData.framework in Frameworks */,
 				83BEB6652CF2C56300BC3E3C /* SQLite in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -77,12 +80,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		839E4F802D00A3EF000168A8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				839E4F812D00A3EF000168A8 /* SwiftData.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		83FF7DD62CF2BAA1000AD145 = {
 			isa = PBXGroup;
 			children = (
 				83FF7DE12CF2BAA1000AD145 /* perpuskan */,
 				83FF7DF32CF2BAA4000AD145 /* perpuskanTests */,
 				83FF7DFD2CF2BAA4000AD145 /* perpuskanUITests */,
+				839E4F802D00A3EF000168A8 /* Frameworks */,
 				83FF7DE02CF2BAA1000AD145 /* Products */,
 			);
 			sourceTree = "<group>";
