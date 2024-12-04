@@ -17,7 +17,7 @@ struct AddBookView: View {
     @State private var title: String = ""
     @State private var author: String = ""
     @State private var year: String = ""
-    @State private var selectedCategoryIds: Set<Int64> = [] // To avoid duplicates
+    @State private var selectedCategoryIds: Set<Int> = [] // To avoid duplicates
 
     var body: some View {
         NavigationView {

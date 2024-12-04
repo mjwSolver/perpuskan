@@ -26,7 +26,7 @@ class BookViewModel: ObservableObject {
         books = DatabaseManager.shared.fetchAllBooks()
     }
 
-    func addBook(title: String?, author: String?, year: Int?, categoryIds: [Int64]) {
+    func addBook(title: String?, author: String?, year: Int?, categoryIds: [Int]) {
         guard validateInput(title: title, author: author, year: year) else {
             print("Invalid input")
             return
@@ -37,7 +37,7 @@ class BookViewModel: ObservableObject {
         }
 
         do {
-            let newBookId = try DatabaseManager.shared.addBook(title: title, author: author, year: year, categoryIds: categoryIds)
+            let newBookId: () = try DatabaseManager.shared.addBook(title: title, author: author, year: year, categoryIds: categoryIds)
 //            print("Book added with ID \(bookId)")
             fetchAllBooks() // Refresh the book list
         } catch {

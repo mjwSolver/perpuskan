@@ -177,7 +177,7 @@ class DatabaseManager {
     }
 
     // CRUD For Books
-    private func addBook(title: String, author: String, year: Int, memberId: Int? = nil, categoryIds: [Int]) throws {
+    func addBook(title: String, author: String, year: Int, memberId: Int? = nil, categoryIds: [Int]) throws {
         
         do {
             // Step 1: Insert the book into the database
