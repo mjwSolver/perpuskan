@@ -20,15 +20,15 @@ class DatabaseManager {
     
     // Pivot
     private let bookCategoriesTable = Table("BookCategories")
-    private let bookIdColumn = Expression<Int64>(value: 0) // "book_id"
-    private let categoryIdColumn = Expression<Int64>(value: 0) // "category_id"
+    private let bookIdColumn = Expression<Int>(value: 0) // "book_id"
+    private let categoryIdColumn = Expression<Int>(value: 0) // "category_id"
 
     // Columns for Books
-    private var bookId = Expression<Int64>(value: 0)
+    private var bookId = Expression<Int>(value: 0)
     private let title = Expression<String>(value: "title")
     private let author = Expression<String>(value: "author")
     private let year = Expression<Int>(value: 0) // "year"
-    private let memberId = Expression<Int64>(value: 0) // Nullable for unloaned books
+    private let memberId = Expression<Int>(value: 0) // Nullable for unloaned books
 
     // Columns for Members
     private let memberIdColumn = Expression<Int>(value: 0) // "id"
@@ -37,7 +37,7 @@ class DatabaseManager {
     private let memberPhone = Expression<String>(value: "phone")
 
     // Columns for Categories
-    private let categoryId = Expression<Int64>(value: 0) // "id"
+    private let categoryId = Expression<Int>(value: 0) // "id"
     private let categoryName = Expression<String>(value: "name")
 
     
@@ -177,35 +177,45 @@ class DatabaseManager {
     }
 
     // CRUD For Books
-    func addBook(title: String, author: String, year: Int, memberId: Int64? = nil, categoryIds: [Int64]) throws -> Int64 {
+    private func addBook(title: String, author: String, year: Int, memberId: Int? = nil, categoryIds: [Int]) throws {
+        
         do {
+            // Step 1: Insert the book into the database
             let insert = booksTable.insert(
                 self.title <- title,
                 self.author <- author,
                 self.year <- year,
-                self.memberId <- memberId // TODO: Expression Int versus Int64
+                self.memberId <- memberId ?? -1 // Handle nil memberId
             )
-            
+
             guard let bookId = try db?.run(insert) else {
                 throw NSError(domain: "DatabaseError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to insert book."])
             }
-            
+
             print("Book added successfully with ID \(bookId)")
-            
-            // Insert into BookCategories table for each category ID
+
+            // Step 2: Add categories to the book
             for categoryId in categoryIds {
-                let insertCategory = bookCategoriesTable.insert(
-                    bookIdColumn <- bookId, // TODO: Expression Int versus Int64
-                    categoryIdColumn <- Int(categoryId) // TODO: Expression Int versus Int64
-                )
-                try db?.run(insertCategory)
-                print("Added category \(categoryId) for book \(bookId)")
+                try addCategoryToBook(bookId: Int(bookId), categoryId: categoryId)
             }
-            
-            return bookId
-            
+
         } catch {
             print("Failed to add book: \(error)")
+            throw error
+        }
+        
+    }
+    
+    private func addCategoryToBook(bookId: Int, categoryId: Int) throws {
+        do {
+            let insertCategory = bookCategoriesTable.insert(
+                bookIdColumn <- bookId,
+                categoryIdColumn <- categoryId
+            )
+            try db?.run(insertCategory)
+            print("Added category \(categoryId) for book \(bookId)")
+        } catch {
+            print("Failed to add category \(categoryId) to book \(bookId): \(error)")
             throw error
         }
     }
