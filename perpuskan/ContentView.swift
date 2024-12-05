@@ -14,7 +14,17 @@ struct ContentView: View {
     
     var body: some View {
         
-        CategoryListView(context: modelContext)
+        NavigationView {
+            List {
+                NavigationLink(destination: BookListView()) {
+                    Label("Books", systemImage: "book")
+                }
+                NavigationLink(destination: CategoryListView(context: modelContext)) {
+                    Label("Book Categories", systemImage: "tag")
+                }
+            }
+            .navigationTitle("Library")
+        }
         .onAppear {
             insertMockData(context: modelContext.container.mainContext)
         }
