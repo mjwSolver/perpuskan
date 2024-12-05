@@ -104,3 +104,50 @@
 //#Preview {
 //    BookListView()
 //}
+
+import SwiftUI
+import SwiftData
+
+struct BookListView: View {
+    @Environment(\.modelContext) private var context
+    @Query private var books: [Book]
+    
+    @State private var showingAddBookView = false
+    
+    var body: some View {
+        NavigationView {
+            List {
+                ForEach(books) { book in
+                    NavigationLink(destination: EditBookView(book: book)) {
+                        VStack(alignment: .leading) {
+                            Text(book.title)
+                                .font(.headline)
+                            Text("Author: \(book.author)")
+                                .font(.subheadline)
+                        }
+                    }
+                }
+                .onDelete { indexSet in
+                    for index in indexSet {
+                        context.delete(books[index])
+                    }
+                    try? context.save()
+                }
+            }
+            .navigationTitle("Books")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showingAddBookView = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .sheet(isPresented: $showingAddBookView) {
+                AddBookView()
+            }
+        }
+    }
+}
+

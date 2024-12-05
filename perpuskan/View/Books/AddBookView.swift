@@ -99,6 +99,51 @@
 //    
 //}
 
+import SwiftUI
+
+struct AddBookView: View {
+    @Environment(\.modelContext) private var context
+    @State private var title = ""
+    @State private var author = ""
+    @State private var year: String = ""
+    @State private var memberId: TheMember?
+    @State private var selectedCategories: [BookCategory] = []
+
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Details")) {
+                    TextField("Title", text: $title)
+                    TextField("Author", text: $author)
+                    TextField("Year", text: $year)
+                        .keyboardType(.numberPad)
+                }
+                Section(header: Text("Categories")) {
+                    // Add a picker or list to select categories
+                }
+            }
+            .navigationTitle("Add Book")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
+                        let newBook = Book(title: title, author: author, year: Int(year) ?? 0)
+                        newBook.categories = selectedCategories
+                        context.insert(newBook)
+                        try? context.save()
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
 
 
 

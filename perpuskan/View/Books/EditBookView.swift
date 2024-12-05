@@ -51,3 +51,35 @@
 //        }
 //    }
 //}
+
+import SwiftUI
+
+struct EditBookView: View {
+    @Environment(\.modelContext) private var context
+    @State var book: Book
+    
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        Form {
+            Section(header: Text("Details")) {
+                TextField("Title", text: $book.title)
+                TextField("Author", text: $book.author)
+                TextField("Year", text: .constant("\(book.year)"))
+                    .keyboardType(.numberPad)
+            }
+            Section(header: Text("Categories")) {
+                // Allow editing categories
+            }
+        }
+        .navigationTitle("Edit Book")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("Save") {
+                    try? context.save()
+                    dismiss()
+                }
+            }
+        }
+    }
+}

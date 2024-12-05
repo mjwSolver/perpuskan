@@ -97,4 +97,56 @@
 //        
 //}
 
+import Foundation
+import SwiftData
+
+@Observable
+class BookViewModel {
+    private let modelContext: ModelContext
+    
+    @Published var books: [Book] = []
+    
+    init(modelContext: ModelContext) {
+        self.modelContext = modelContext
+        fetchBooks()
+    }
+    
+    func fetchBooks() {
+        do {
+            let request = FetchDescriptor<Book>()
+            books = try modelContext.fetch(request)
+        } catch {
+            print("Error fetching books: \(error)")
+        }
+    }
+    
+    func addBook(title: String, author: String, year: Int, categories: [BookCategory], member: TheMember?) {
+        let newBook = Book(title: title, author: author, year: year, member: member, categories: categories)
+        modelContext.insert(newBook)
+        saveChanges()
+    }
+    
+    func updateBook(book: Book, title: String, author: String, year: Int, categories: [BookCategory], member: TheMember?) {
+        book.title = title
+        book.author = author
+        book.year = year
+        book.categories = categories
+        book.member = member
+        saveChanges()
+    }
+    
+    func deleteBook(book: Book) {
+        modelContext.delete(book)
+        saveChanges()
+    }
+    
+    private func saveChanges() {
+        do {
+            try modelContext.save()
+            fetchBooks() // Refresh the list after saving
+        } catch {
+            print("Error saving context: \(error)")
+        }
+    }
+}
 

@@ -32,35 +32,30 @@ func populateMockData(context: ModelContext) {
     context.deleteAllEntities(ofType: TheMember.self)
 
     // Create mock categories
-    let category1 = BookCategory(name: "Fiction")
-    let category2 = BookCategory(name: "Science")
-    let category3 = BookCategory(name: "History")
+    let fiction = BookCategory(name: "Fiction")
+    let science = BookCategory(name: "Science")
+    let history = BookCategory(name: "History")
 
     // Create mock members
-    let member1 = TheMember(name: "Alice Smith", email: "alice@example.com", phone: "123-456-7890")
-    let member2 = TheMember(name: "Bob Johnson", email: "bob@example.com", phone: "987-654-3210")
+    let alice = TheMember(name: "Alice Smith", email: "alice@example.com", phone: "123-456-7890")
+    let bob = TheMember(name: "Bob Johnson", email: "bob@example.com", phone: "987-654-3210")
 
     // Create mock books
-    let book1 = Book(title: "Swift Programming", author: "Apple Inc.", year: 2023, member: member1)
-    let book2 = Book(title: "AI for Everyone", author: "Andrew Ng", year: 2021)
-    let book3 = Book(title: "History of the World", author: "Jared Diamond", year: 1997, member: member2)
+    let swiftProgramming = Book(title: "Swift Programming", author: "Apple Inc.", year: 2023, member: alice, categories: [fiction])
+    let aiForEveryone = Book(title: "AI for Everyone", author: "Andrew Ng", year: 2021, categories: [science])
+    let historyOfTheWorld = Book(title: "History of the World", author: "Jared Diamond", year: 1997, member: bob, categories: [history])
 
-    // Add categories to books
-    book1.categories.append(category1)
-    book2.categories.append(category2)
-    book3.categories.append(category3)
+    // Insert everything
+    context.insert(fiction)
+    context.insert(science)
+    context.insert(history)
 
-    // Save everything
-    context.insert(category1)
-    context.insert(category2)
-    context.insert(category3)
+    context.insert(alice)
+    context.insert(bob)
 
-    context.insert(member1)
-    context.insert(member2)
-
-    context.insert(book1)
-    context.insert(book2)
-    context.insert(book3)
+    context.insert(swiftProgramming)
+    context.insert(aiForEveryone)
+    context.insert(historyOfTheWorld)
 
     do {
         try context.save()
