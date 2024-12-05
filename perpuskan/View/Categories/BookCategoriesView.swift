@@ -41,3 +41,54 @@
 //#Preview {
 //    BookCategoryListView()
 //}
+
+import SwiftUI
+import SwiftData
+
+struct CategoryListView: View {
+    
+    @Environment(\.modelContext) private var context
+    @StateObject private var viewModel: CategoryViewModel
+
+    // Custom initializer, wait for full file to iniaitlize, then create the CategoryViewModel's dependency.
+    init(context: ModelContext) {
+        _viewModel = StateObject(wrappedValue: CategoryViewModel(context: context))
+    }
+
+    @State private var showAddCategoryView = false
+
+    var body: some View {
+        NavigationView {
+            List {
+                ForEach(viewModel.categories) { category in
+                    NavigationLink(destination: EditCategoryView(category: category, viewModel: viewModel)) {
+                        Text(category.name)
+                    }
+                }
+                .onDelete { indexSet in
+                    indexSet.map { viewModel.categories[$0] }.forEach(viewModel.deleteCategory)
+                }
+            }
+            .navigationTitle("Categories")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { showAddCategoryView = true }) {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .sheet(isPresented: $showAddCategoryView) {
+                AddCategoryView(viewModel: viewModel)
+            }
+            .alert("Error", isPresented: Binding<Bool>(
+                get: { viewModel.errorMessage != nil },
+                set: { _ in viewModel.errorMessage = nil }
+            )) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(viewModel.errorMessage ?? "")
+            }
+        }
+
+    }
+}

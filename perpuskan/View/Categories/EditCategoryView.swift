@@ -29,3 +29,42 @@
 //        .navigationTitle("Edit Category")
 //    }
 //}
+
+import SwiftUI
+
+struct EditCategoryView: View {
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject var viewModel: CategoryViewModel
+
+    var category: BookCategory
+    @State private var categoryName: String
+
+    init(category: BookCategory, viewModel: CategoryViewModel) {
+        self.category = category
+        self.viewModel = viewModel
+        _categoryName = State(initialValue: category.name)
+    }
+
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Category Name")) {
+                    TextField("Enter name", text: $categoryName)
+                }
+            }
+            .navigationTitle("Edit Category")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
+                        viewModel.updateCategory(category, withName: categoryName)
+                        dismiss()
+                    }.disabled(categoryName.isEmpty)
+                }
+            }
+        }
+    }
+}
+

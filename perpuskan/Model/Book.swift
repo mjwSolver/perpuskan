@@ -24,10 +24,10 @@ class Book {
     var title: String
     var author: String
     var year: Int
-    var member: Member? // Optional relationship for borrowing
+    var member: TheMember? // Optional relationship for borrowing
     var categories: [BookCategory] = [] // Many-to-many relationship
 
-    init(title: String, author: String, year: Int, member: Member? = nil) {
+    init(title: String, author: String, year: Int, member: TheMember? = nil) {
         self.id = UUID()
         self.title = title
         self.author = author

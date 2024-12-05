@@ -6,11 +6,6 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		839E4F822D00A3F0000168A8 /* SwiftData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 839E4F812D00A3EF000168A8 /* SwiftData.framework */; };
-		83BEB6652CF2C56300BC3E3C /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 83BEB6642CF2C56300BC3E3C /* SQLite */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXContainerItemProxy section */
 		83FF7DF12CF2BAA4000AD145 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -58,8 +53,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				839E4F822D00A3F0000168A8 /* SwiftData.framework in Frameworks */,
-				83BEB6652CF2C56300BC3E3C /* SQLite in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -129,7 +122,6 @@
 			);
 			name = perpuskan;
 			packageProductDependencies = (
-				83BEB6642CF2C56300BC3E3C /* SQLite */,
 			);
 			productName = perpuskan;
 			productReference = 83FF7DDF2CF2BAA1000AD145 /* perpuskan.app */;
@@ -214,7 +206,6 @@
 			mainGroup = 83FF7DD62CF2BAA1000AD145;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				83FF7E1A2CF2C1B2000AD145 /* XCRemoteSwiftPackageReference "SQLite" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 83FF7DE02CF2BAA1000AD145 /* Products */;
@@ -570,25 +561,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		83FF7E1A2CF2C1B2000AD145 /* XCRemoteSwiftPackageReference "SQLite" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/stephencelis/SQLite.swift";
-			requirement = {
-				kind = exactVersion;
-				version = 0.13.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		83BEB6642CF2C56300BC3E3C /* SQLite */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 83FF7E1A2CF2C1B2000AD145 /* XCRemoteSwiftPackageReference "SQLite" */;
-			productName = SQLite;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 83FF7DD72CF2BAA1000AD145 /* Project object */;
 }

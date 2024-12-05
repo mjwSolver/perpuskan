@@ -16,7 +16,7 @@ import SwiftData
 import Foundation
 
 @Model
-class Member {
+class TheMember: Identifiable {
     @Attribute(.unique) var id: UUID
     var name: String
     var email: String

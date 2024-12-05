@@ -14,7 +14,7 @@ class PersistenceController {
 
     private init() {
         do {
-            container = try ModelContainer(for: Book.self, BookCategory.self, Member.self)
+            container = try ModelContainer(for: Book.self, BookCategory.self, TheMember.self)
         } catch {
             fatalError("Failed to initialize ModelContainer: \(error)")
         }
@@ -29,7 +29,7 @@ func populateMockData(context: ModelContext) {
     // Clear existing data
     context.deleteAllEntities(ofType: Book.self)
     context.deleteAllEntities(ofType: BookCategory.self)
-    context.deleteAllEntities(ofType: Member.self)
+    context.deleteAllEntities(ofType: TheMember.self)
 
     // Create mock categories
     let category1 = BookCategory(name: "Fiction")
@@ -37,8 +37,8 @@ func populateMockData(context: ModelContext) {
     let category3 = BookCategory(name: "History")
 
     // Create mock members
-    let member1 = Member(name: "Alice Smith", email: "alice@example.com", phone: "123-456-7890")
-    let member2 = Member(name: "Bob Johnson", email: "bob@example.com", phone: "987-654-3210")
+    let member1 = TheMember(name: "Alice Smith", email: "alice@example.com", phone: "123-456-7890")
+    let member2 = TheMember(name: "Bob Johnson", email: "bob@example.com", phone: "987-654-3210")
 
     // Create mock books
     let book1 = Book(title: "Swift Programming", author: "Apple Inc.", year: 2023, member: member1)

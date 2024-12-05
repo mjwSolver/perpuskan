@@ -50,3 +50,59 @@
 //    }
 //    
 //}
+
+import SwiftUI
+import SwiftData
+
+@MainActor
+class CategoryViewModel: ObservableObject {
+    @Published var categories: [BookCategory] = []
+    @Published var errorMessage: String?
+
+    private var context: ModelContext
+
+    init(context: ModelContext) {
+        self.context = context
+        fetchCategories()
+    }
+
+    func fetchCategories() {
+        do {
+            let allCategories = try context.fetch(FetchDescriptor<BookCategory>())
+            categories = allCategories
+        } catch {
+            errorMessage = "Failed to fetch categories: \(error.localizedDescription)"
+        }
+    }
+
+    func addCategory(name: String) {
+        let newCategory = BookCategory(name: name)
+        do {
+            try context.insert(newCategory)
+            try context.save()
+            fetchCategories()
+        } catch {
+            errorMessage = "Failed to add category: \(error.localizedDescription)"
+        }
+    }
+
+    func updateCategory(_ category: BookCategory, withName newName: String) {
+        category.name = newName
+        do {
+            try context.save()
+            fetchCategories()
+        } catch {
+            errorMessage = "Failed to update category: \(error.localizedDescription)"
+        }
+    }
+
+    func deleteCategory(_ category: BookCategory) {
+        do {
+            try context.delete(category)
+            try context.save()
+            fetchCategories()
+        } catch {
+            errorMessage = "Failed to delete category: \(error.localizedDescription)"
+        }
+    }
+}
